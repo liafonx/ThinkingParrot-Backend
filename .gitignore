@@ -1,0 +1,14 @@
+*.pyc
+__pycache__/
+/miniproject/__pycache__/
+*.log
+/miniproject/key/
+.idea/
+/miniproject/.idea/
+.idea/AI_teaching_project-main.iml
+.idea/deployment.xml
+.idea/misc.xml
+.idea/sshConfigs.xml
+.idea/webServers.xml
+.idea/dataSources.xml
+miniproject/template/Lectures/~$Lecture 1.xlsx
