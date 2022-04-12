@@ -1,0 +1,55 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Upload your file</title>
+    <base href="/">
+</head>
+<body>
+    <form action="/questionRecord/getHistoryNum/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+            commonUserID:<input type="text" name="commonUserID">
+        </p>
+        <p>
+            level:<input type="text" name="level">
+        </p>
+        <p>
+            lecture:<input type="text" name="lecture">
+        </p>
+        <p>
+            questionID:<input type="text" name="questionID">
+        </p>
+        <p>
+            file:<input type="file" name="file">
+        </p>
+        <p>
+            code:<input type="text" name="code">
+        </p>
+        <p>
+            userinfo:<input type="text" name="userinfo">
+        </p>
+        <p>
+            name:<input type="text" name="name">
+        </p>
+        <p>
+            iv:<input type="text" name="iv">
+        </p>
+        <p>
+            photo:<input type="file" name="photo">
+        </p>
+        <p>
+            right:<input type="text" name="right">
+        </p>
+        <p>
+            wrong:<input type="text" name="right">
+        </p>
+        <p>
+            score:<input type="text" name="right">
+        </p>
+        <p>
+            whetherAdd:<input type="text" name="whetherAdd">
+        </p>
+        <button type="submit">Click</button>
+    </form>
+</body>
+</html>

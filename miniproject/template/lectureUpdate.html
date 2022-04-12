@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecture update</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/lectureUpload/lecture-style.css">
+
+</head>
+<script>
+
+    //利用match方法
+    function Isvalid(str1) {
+        var re = new RegExp("^Lecture [1-9][0-9]*(\.xlsx$)", "g");
+        return re.test(str1);
+    }
+
+
+    function FileDisplay() {
+        {#alert("fff")#}
+        var FileList = document.getElementById("fileinp")
+        var List = "";
+        var disbaled = '';
+        for (var i = 0; i < FileList.files.length; i++) {
+
+            var file = FileList.files[i];
+            {#alert(file.name)#}
+            var src = '../static/images/';
+            if (Isvalid(file.name)) {
+                src += 'correct.png'
+            } else {
+                src += 'wrong.png'
+                disbaled = 'disabled'
+            }
+            List += "<div class='fName-box'>" +
+                "<img class='icon-valid' src='" + src + "'> " +
+                "<label class='fName'>" + file.name + "</label> </div>";
+        }
+        document.getElementById("upload").disabled = disbaled
+        document.getElementById("right-block").innerHTML = List
+    }
+
+    setTimeout(function () {// set the last time of prompt div
+        document.getElementById("prompt").style.display = 'none';
+    }, 2000);
+
+    function Loading() {
+        document.getElementById("gif").style.display = 'flex'
+    }
+</script>
+<body>
+<div class = "gif" id="gif">
+    <img src = "../static/images/loading.gif"/>
+</div>
+{{ updateState }}
+<div class="main-box">
+    {% if uploadState == 'success' %}
+        <div class='prompt' id='prompt'>Lectures was uploaded successfully!</div>
+    {% elif uploadState == 'failed' %}
+        <div class='prompt prompt-failed' id='prompt'>Lectures failed to be uploaded!</div>
+    {% endif %}
+    {% if updateState == 'success' %}
+        <div class='prompt' id='prompt'>Questions was updated successfully!</div>
+    {% elif updateState == 'failed' %}
+        <div class='prompt prompt-failed' id='prompt'>Questions failed to be updated!</div>
+    {% endif %}
+    {% if refreshState == 'success' %}
+        <div class='prompt' id='prompt'>Data is all refreshed successfully!</div>
+    {% elif refreshState == 'failed' %}
+        <div class='prompt prompt-failed' id='prompt'>Data failed to be refreshed!</div>
+    {% endif %}
+    <prompt></prompt>
+    <div class="left-block">
+        <form class="left-form" action="lectureUpdate" method="POST" enctype="multipart/form-data" id="file_form">
+            {% csrf_token %}
+            {% if uploadState == 'success' or updateState == 'success'%}
+                <button class="btn file-box" disabled="disabled">{{ form }}</button>
+            {% else %}
+                <div class="btn file-box">{{ form }}</div>
+            {% endif %}
+            <input type="submit" class="btn btn-upload" id="upload" name="upload" value="Step 2 Upload Lectures"
+                   disabled="disabled" onclick="Loading()"/>
+        </form>
+        <form class="left-form" action="lectureUpdate" method="POST" enctype="multipart/form-data" id="file_form">
+            {% if uploadState == 'success' %}
+                <input type="submit" class="btn btn-update" name="update" value="Step 3 Update Questions" onclick="Loading()"/>
+            {% else %}
+                <input type="submit" class="btn btn-update" name="update" value="Step 3 Update Questions"
+                       disabled="disabled" />
+            {% endif %}
+        </form>
+        <form class="left-form" action="lectureUpdate" method="POST" enctype="multipart/form-data" id="file_form">
+            {% if updateState == 'success' %}
+                <input type="submit" class="btn btn-refresh" name="refresh" value="Step 4 Refresh Database" onclick="Loading()"/>
+            {% else %}
+               <input type="submit" class="btn btn-refresh" name="refresh" value="Step 4 Refresh Database"
+                   disabled="disabled"/>
+            {% endif %}
+
+        </form>
+    </div>
+    <div class="right-block" id="right-block">
+        <ul>
+            <li class="alert">Only if all file names are valid (like Lecture 1.xlsx), can you upload lectures to the server.</li>
+            <li class="alert">We will help you to double check the file names after selecting.</li>
+        </ul>
+        {#        <div class="fName-box">#}
+        {#            <img class="icon-valid" src="../static/images/correct.png">#}
+        {#            <label class="fName">Lecture 1</label>#}
+        {#        </div>#}
+        {#        <div class="fName-box">#}
+        {#            <img class="icon-valid" src="../static/images/correct.png">#}
+        {#            <label class="fName">Lecture 2</label>#}
+        {#        </div>#}
+        {#        <div class="fName-box">#}
+        {#            <img class="icon-valid" src="../static/images/wrong.png">#}
+        {#            <label class="fName">Lecture 3</label>#}
+        {#        </div>#}
+    </div>
+</div>
+</body>
+</html>
