@@ -1,0 +1,13 @@
+miniproject/uwsgi.*
+
+miniproject/miniproject.conf
+
+miniproject/key
+
+miniproject/log
+
+miniproject/nohup.*
+
+miniproject/nginx*
+
+miniproject/mime.types
