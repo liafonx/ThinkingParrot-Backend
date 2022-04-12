@@ -286,16 +286,19 @@ def getHistoryNum(request):
             if i == "Level2":
                 if historyQuestion["Level1"]["doneNum"] < historyQuestion["Level1"]["allLevelNum"]:
                     historyQuestion[i]["whetherLock"] = True
+                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
             elif i == "Level3":
                 if historyQuestion["Level2"]["doneNum"] < historyQuestion["Level2"]["allLevelNum"] * 0.85:
                     historyQuestion[i]["whetherLock"] = True
+                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
             elif i == "Level4":
                 if historyQuestion["Level3"]["doneNum"] < historyQuestion["Level3"]["allLevelNum"] * 0.85:
                     historyQuestion[i]["whetherLock"] = True
+                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
 
