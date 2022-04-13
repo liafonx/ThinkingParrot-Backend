@@ -345,9 +345,12 @@ def serializationQuestion(example, level, commonUser):
     elif level == "Level2":
         level2Question = example.Level2
         concepts = []
-        for i in Concept.objects.all():
+        # 只选取与当前concept相同lecture的concepts
+        for i in Concept.objects.filter(unit_id=example.concept.unit.unitID):
             if i.conceptName != example.concept.conceptName:
                 concepts.append(i.conceptName)
+
+        # !没有考虑如果在某一个lecture下concept不足4个的情况
         options = {
             "A": concepts.pop(random.randint(0, len(concepts) - 1)),
             "B": concepts.pop(random.randint(0, len(concepts) - 1)),
@@ -676,6 +679,7 @@ def signAddScore(request):
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
+
 def GetLectures(request):
     try:
         allUnits = Unit.objects.all()
@@ -685,6 +689,7 @@ def GetLectures(request):
         return JsonResponse({'state': 'success', "lectures": units})
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
+
 
 def single_upload(f):
     file_path = os.path.join(".", ".", os.getcwd(), "template", "Lectures", f.name)  # 拼装目录名称+文件名称
@@ -723,4 +728,3 @@ def LectureUpdate(request):
     else:
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
-
