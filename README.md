@@ -1,2 +1,2 @@
-# AI_teaching_project
+# Thinking Parrot 
  
