@@ -744,6 +744,7 @@ def getPublicKeyInfo(request):
 
 def setPublicKeyInfo(request):
     try:
+        print(request)
         ip = request.POST.get("ip")
         d = request.POST.get("d")
         n = request.POST.get("n")
