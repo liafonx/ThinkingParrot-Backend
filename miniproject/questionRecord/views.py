@@ -737,7 +737,7 @@ def getPublicKeyInfo(request):
         # n = request.POST.get("n")
         KeyInfo = PublicKeyInfo.objects.get(ip=ip)
         # whetherAdd = int(request.POST.get("whetherAdd"))
-        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "d": KeyInfo.d, "n": KeyInfo.n})
+        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "e": KeyInfo.e, "n": KeyInfo.n})
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
