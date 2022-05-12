@@ -732,7 +732,7 @@ def LectureUpdate(request):
 
 def getPublicKeyInfo(request):
     try:
-        ip = request.POST.get("ip")
+        ip = request.GET.get("ip")
         # d = request.POST.get("d")
         # n = request.POST.get("n")
         KeyInfo = PublicKeyInfo.objects.get(ip=ip)
