@@ -728,3 +728,27 @@ def LectureUpdate(request):
     else:
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
+
+
+def getPublicKeyInfo(request):
+    try:
+        ip = request.POST.get("ip")
+        # d = request.POST.get("d")
+        # n = request.POST.get("n")
+        KeyInfo = PublicKeyInfo.objects.get(ip=ip)
+        # whetherAdd = int(request.POST.get("whetherAdd"))
+        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "d": KeyInfo.d, "n": KeyInfo.n})
+    except Exception as e:
+        return JsonResponse({'state': 'fail', "error": e.__str__()})
+
+
+def setPublicKeyInfo(request):
+    try:
+        ip = request.POST.get("ip")
+        d = request.POST.get("d")
+        n = request.POST.get("n")
+        KeyInfo = PublicKeyInfo.objects.update_or_create(ip=ip, d=d, n=n)
+        KeyInfo.save()
+        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "d": KeyInfo.d, "n": KeyInfo.n})
+    except Exception as e:
+        return JsonResponse({'state': 'fail', "error": e.__str__()})

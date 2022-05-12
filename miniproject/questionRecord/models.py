@@ -261,6 +261,18 @@ class DailyRank(models.Model):
     class Meta:
         db_table = "DailyRank"
 
+
+class PublicKeyInfo(models.Model):
+    ip = models.CharField(primary_key=True)
+    d = models.IntegerField()
+    n = models.IntegerField()
+
+    def __str__(self):
+        return "PublicKeyInfo:" + str(self.ip)
+
+    class Meta:
+        db_table = "PublicKeyInfo"
+
 # ALTER TABLE Example MODIFY COLUMN translation longtext
 #     CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
 # ALTER TABLE Level4 MODIFY COLUMN question longtext
