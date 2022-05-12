@@ -746,11 +746,11 @@ def setPublicKeyInfo(request):
     try:
         print(request)
         ip = request.GET.get("ip")
-        d = request.GET.get("d")
+        e = request.GET.get("e")
         n = request.GET.get("n")
         print(ip, "--", d, "--", n)
-        KeyInfo, created = PublicKeyInfo.objects.update_or_create(ip=ip, defaults={'d': d, 'n': n})
+        KeyInfo, created = PublicKeyInfo.objects.update_or_create(ip=ip, defaults={'e': e, 'n': n})
         KeyInfo.save()
-        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "d": KeyInfo.d, "n": KeyInfo.n})
+        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "e": KeyInfo.e, "n": KeyInfo.n})
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
