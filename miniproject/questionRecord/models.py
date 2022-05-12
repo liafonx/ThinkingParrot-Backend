@@ -263,7 +263,7 @@ class DailyRank(models.Model):
 
 
 class PublicKeyInfo(models.Model):
-    ip = models.CharField(primary_key=True, max_lenth=12)
+    ip = models.CharField(primary_key=True, max_length=12)
     d = models.IntegerField()
     n = models.IntegerField()
 
