@@ -748,7 +748,7 @@ def setPublicKeyInfo(request):
         ip = request.GET.get("ip")
         e = request.GET.get("e")
         n = request.GET.get("n")
-        print(ip, "--", d, "--", n)
+        print(ip, "--", e, "--", n)
         KeyInfo, created = PublicKeyInfo.objects.update_or_create(ip=ip, defaults={'e': e, 'n': n})
         KeyInfo.save()
         return JsonResponse({"state": "success", "ip": KeyInfo.ip, "e": KeyInfo.e, "n": KeyInfo.n})
