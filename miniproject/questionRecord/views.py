@@ -3,11 +3,12 @@ import json
 import math
 import os
 import random
-
+# Import the base64 encoding library.
+import base64
+# Pass the audio data to an encoding function.
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
-import base64
 from .models import *
 from django.views.decorators.csrf import csrf_exempt
 from . import audioRecognize
@@ -23,7 +24,7 @@ from .forms import FileFieldForm
 
 
 AppID = "wxd27ea3eb3d649f0d"
-AppSecret = "da1e11486e57ebb44c7753180e3285a5"
+AppSecret = os.environ["MINIPG_KEY"]
 
 
 # cd AI_teaching/AI_teaching_project/miniproject
@@ -49,11 +50,10 @@ def userinfo(request):
         photo = request.POST.get("photo", "")  # get the photo
         try:
             commonUser = CommonUser.objects.get(commonUserID=user_info['openId'])
-            commonUser.commonUserName = name
+            commonUser.commonUserName = str(name)[0:6]
             commonUser.imageLocation = photo
             commonUser.save()
-        except Exception as e:
-            print('Exception at get userinfo:', e);
+        except:
             group = Groups.objects.get(groupID=1)
             commonUser = CommonUser.objects.create(commonUserID=user_info['openId'], commonUserName=name, group=group)
             Progress.objects.create(commonUser=commonUser, qstNum=0, cumScore=0)
@@ -63,7 +63,6 @@ def userinfo(request):
         return JsonResponse(
             {"state": "success", "OpenID": user_info['openId'], "Name": name, "Photo": commonUser.imageLocation})
     except Exception as e:
-        print(e.__str__())
         return JsonResponse({"state": "fail", "error": e.__str__()})
 
 
@@ -85,33 +84,7 @@ def getUserInformation(request):
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
-
-def getRankWithLevel(request):
-    try:
-        level = request.POST.get("level")
-        allCommonUser = CommonUser.objects.filter(level=level, ).order_by("-Progress__cumScore")
-        result = []
-        for i in allCommonUser:
-            result.append({"commonUserID": i.commonUserID, "commonUserName": i.commonUserName,
-                           "score": i.Progress.cumScore, "imageURL": i.imageLocation})
-        return JsonResponse({"state": "success", "result": result})
-    except Exception as e:
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
-
-
-def getRankWithoutLevel(request):
-    try:
-        rank = DailyRank.objects.get(id=1)
-        if rank is not None:
-            return JsonResponse(json.loads(rank.rank))
-        else:
-            print(rank)
-            return JsonResponse({'state': 'fail', "error": "No rank stored"})
-    except Exception as e:
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
-
-
-def SetDailyRank():
+def getRank(request):
     try:
         allCommonUser = CommonUser.objects.order_by("-Progress__cumScore")
         result = []
@@ -122,15 +95,9 @@ def SetDailyRank():
                            "score": i.Progress.cumScore, "level": i.level, "imageURL": i.imageLocation})
             if top == 50:
                 break
-        rankList = DailyRank.objects.get(id=1)
-        rankList.rank = json.dumps({"state": "success", "result": result})
-        rankList.save()
-        print({'state': 'success'})
-        return
+        return JsonResponse({"state": "success", "result": result})
     except Exception as e:
-        print({'state': 'fail', "error": e.__str__()})
-        return
-
+        return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 def getNewQuestion(request):
     try:
@@ -286,19 +253,16 @@ def getHistoryNum(request):
             if i == "Level2":
                 if historyQuestion["Level1"]["doneNum"] < historyQuestion["Level1"]["allLevelNum"]:
                     historyQuestion[i]["whetherLock"] = True
-                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
             elif i == "Level3":
                 if historyQuestion["Level2"]["doneNum"] < historyQuestion["Level2"]["allLevelNum"] * 0.85:
                     historyQuestion[i]["whetherLock"] = True
-                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
             elif i == "Level4":
                 if historyQuestion["Level3"]["doneNum"] < historyQuestion["Level3"]["allLevelNum"] * 0.85:
                     historyQuestion[i]["whetherLock"] = True
-                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
 
@@ -346,11 +310,14 @@ def serializationQuestion(example, level, commonUser):
         level2Question = example.Level2
         concepts = []
         # 只选取与当前concept相同lecture的concepts
-        for i in Concept.objects.filter(unit_id=example.concept.unit.unitID):
+        # for i in Concept.objects.filter(unit_id=example.concept.unit.unitID):
+        #     if i.conceptName != example.concept.conceptName:
+        #         concepts.append(i.conceptName)
+        # !没有考虑如果在某一个lecture下concept不足4个的情况
+
+        for i in Concept.objects.all():
             if i.conceptName != example.concept.conceptName:
                 concepts.append(i.conceptName)
-
-        # !没有考虑如果在某一个lecture下concept不足4个的情况
         options = {
             "A": concepts.pop(random.randint(0, len(concepts) - 1)),
             "B": concepts.pop(random.randint(0, len(concepts) - 1)),
@@ -411,31 +378,33 @@ def toCancelCollect(request):
 
 
 def judgeAnswer(request):
-    # try:
-    commonUserID = request.POST["commonUserID"]
-    commonUser = CommonUser.objects.get(commonUserID=commonUserID)
-    level = request.POST["level"]
-    questionID = request.POST.get("questionID")
-    if level == "Level1":
-        level = "Level2"
-    example = eval(level).objects.get(questionID=questionID).example
-    if level == "Level4":
-        audiofile = request.FILES.get('file', '')
-        trueAnswer = example.example
-        result = audioRecognize.recognizeAudio(audiofile, trueAnswer)
-        yourAnswer = result["yourAnswer"]
-        result = result["result"]
-    else:
-        trueAnswer = example.meaning
-        yourAnswer = request.POST.get("answer")
-        result = (yourAnswer == trueAnswer)
-    History.objects.create(commonUser=commonUser, questionID=questionID, level=level)
-    commonUser.save()
-    return JsonResponse({'state': 'success', "result": result, "trueAnswer": trueAnswer, "yourAnswer": yourAnswer})
+    try:
+        commonUserID = request.POST["commonUserID"]
+        commonUser = CommonUser.objects.get(commonUserID=commonUserID)
+        level = request.POST["level"]
+        questionID = request.POST.get("questionID")
+        if level == "Level1":
+            level = "Level2"
+        example = eval(level).objects.get(questionID=questionID).example
+        if level == "Level4":
+            audiofile = request.FILES.get('file', '')
+            trueAnswer = example.example
+            result = audioRecognize.recognizeAudio(audiofile, trueAnswer)
+            print(result)
+            if result['state'] == 'fail':
+                raise Exception(result['error'])
+            yourAnswer = result["youranswer"]
+            result = result["result"]
+        else:
+            trueAnswer = example.meaning
+            yourAnswer = request.POST.get("answer")
+            result = (yourAnswer == trueAnswer)
+        History.objects.create(commonUser=commonUser, questionID=questionID, level=level)
+        commonUser.save()
+        return JsonResponse({'state': 'success', "result": result, "trueAnswer": trueAnswer, "yourAnswer": yourAnswer})
+    except Exception as e:
+        return JsonResponse({'state': 'fail', "error": e.__str__()})
 
-
-# except Exception as e:
-#     return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 def getUserRank(request):
     try:
@@ -460,6 +429,8 @@ def getUserRank(request):
         userPercent = format(((len(allCommonUser) - rank) / len(allCommonUser)) * 100, '.2f')
         if commonUser.lastCheckDate.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
             check = True
+        if rank > 100:
+            rank = "未上榜"
         return JsonResponse({"state": "success", "score": score, "rank": rank, "percent": userPercent, "toNext": toNext,
                              "commonUserName": commonUser.commonUserName, "level": commonUser.level,
                              "imageURL": commonUser.imageLocation, 'checked': check,
@@ -728,29 +699,3 @@ def LectureUpdate(request):
     else:
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
-
-
-def getPublicKeyInfo(request):
-    try:
-        ip = request.GET.get("ip")
-        # d = request.POST.get("d")
-        # n = request.POST.get("n")
-        KeyInfo = PublicKeyInfo.objects.get(ip=ip)
-        # whetherAdd = int(request.POST.get("whetherAdd"))
-        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "e": KeyInfo.e, "n": KeyInfo.n})
-    except Exception as e:
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
-
-
-def setPublicKeyInfo(request):
-    try:
-        print(request)
-        ip = request.GET.get("ip")
-        e = request.GET.get("e")
-        n = request.GET.get("n")
-        print(ip, "--", e, "--", n)
-        KeyInfo, created = PublicKeyInfo.objects.update_or_create(ip=ip, defaults={'e': e, 'n': n})
-        KeyInfo.save()
-        return JsonResponse({"state": "success", "ip": KeyInfo.ip, "e": KeyInfo.e, "n": KeyInfo.n})
-    except Exception as e:
-        return JsonResponse({'state': 'fail', "error": e.__str__()})

@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -17,11 +17,17 @@ from django.template.defaultfilters import join
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+os.environ["MINIPG_KEY"] = open('key/thinking-parrot.key').read()
+os.environ["DJANGO_KEY"] = open('key/django.key').read()
+os.environ["DATABASE"] = open('key/database.json').read()
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key/radiant-snow-300905-5dfba126430b.json'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'cp7o6_wb&adob$sertr*3mo-r&t^a30yl6p4w)$bduirv=my-('
+SECRET_KEY = os.environ["DJANGO_KEY"]
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,14 +83,7 @@ WSGI_APPLICATION = 'miniproject.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': "AI_Teaching_Project",  # AI_Teaching_Project
-        'USER': "root",
-        "PASSWORD": "89sW@;ll5J",  # 89sW@;ll5J
-        "HOST": "localhost",
-        "PORT": "3306"
-    }
+    'default': json.loads(os.environ["DATABASE"])
 }
 
 # Password validation
@@ -131,9 +130,9 @@ MEDIA_URL = '/media/'
 # 日期格式
 DATE_INPUT_FORMATS = ['%Y-%m-%d']
 
-CRONJOBS = [
-    # 表示每天2：01执行
-    ('0 5 * * *', 'questionRecord.views.SetDailyRank', '>/home/test.log')
-]
+# CRONJOBS = [
+#     # 表示每天2：01执行
+#     ('0 5 * * *', 'questionRecord.views.SetDailyRank', '>/home/test.log')
+# ]
 
 CRONTAB_COMMAND_SUFFIX = '2>&1'
