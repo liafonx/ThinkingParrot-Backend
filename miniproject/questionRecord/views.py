@@ -23,7 +23,7 @@ from .forms import FileFieldForm
 
 
 AppID = "wxd27ea3eb3d649f0d"
-AppSecret = "da1e11486e57ebb44c7753180e3285a5"
+AppSecret = os.environ["MINIPG_KEY"]
 
 
 # cd AI_teaching/AI_teaching_project/miniproject
