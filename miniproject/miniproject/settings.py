@@ -21,12 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'cp7o6_wb&adob$sertr*3mo-r&t^a30yl6p4w)$bduirv=my-('
+SECRET_KEY = 'd4f2e7af58555ab25188d000f6e2047c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['34.92.251.246', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 STATIC_URL = '/static/'
@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': "AI_Teaching_Project",  # AI_Teaching_Project
         'USER': "root",
         "PASSWORD": "89sW@;ll5J",  # 89sW@;ll5J
-        "HOST": "localhost",
+        "HOST": "34.92.146.187",
         "PORT": "3306"
     }
 }
@@ -131,9 +131,9 @@ MEDIA_URL = '/media/'
 # 日期格式
 DATE_INPUT_FORMATS = ['%Y-%m-%d']
 
-CRONJOBS = [
-    # 表示每天2：01执行
-    ('0 5 * * *', 'questionRecord.views.SetDailyRank', '>/home/test.log')
-]
+# CRONJOBS = [
+#     # 表示每天2：01执行
+#     ('0 5 * * *', 'questionRecord.views.SetDailyRank', '>/home/test.log')
+# ]
 
 CRONTAB_COMMAND_SUFFIX = '2>&1'

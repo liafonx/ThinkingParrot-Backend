@@ -3,11 +3,12 @@ import json
 import math
 import os
 import random
-
+# Import the base64 encoding library.
+import base64
+# Pass the audio data to an encoding function.
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
-import base64
 from .models import *
 from django.views.decorators.csrf import csrf_exempt
 from . import audioRecognize
@@ -16,7 +17,6 @@ from weixin import WXAPPAPI
 from google.cloud import texttospeech
 from datetime import datetime, timedelta
 from random import shuffle
-from django.views.generic.edit import FormView
 from .forms import FileFieldForm
 
 # Create your views here.
@@ -83,33 +83,7 @@ def getUserInformation(request):
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
-
-def getRankWithLevel(request):
-    try:
-        level = request.POST.get("level")
-        allCommonUser = CommonUser.objects.filter(level=level, ).order_by("-Progress__cumScore")
-        result = []
-        for i in allCommonUser:
-            result.append({"commonUserID": i.commonUserID, "commonUserName": i.commonUserName,
-                           "score": i.Progress.cumScore, "imageURL": i.imageLocation})
-        return JsonResponse({"state": "success", "result": result})
-    except Exception as e:
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
-
-
-def getRankWithoutLevel(request):
-    try:
-        rank = DailyRank.objects.get(id=1)
-        if rank is not None:
-            return JsonResponse(json.loads(rank.rank))
-        else:
-            print(rank)
-            return JsonResponse({'state': 'fail', "error": "No rank stored"})
-    except Exception as e:
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
-
-
-def SetDailyRank():
+def getRank(request):
     try:
         allCommonUser = CommonUser.objects.order_by("-Progress__cumScore")
         result = []
@@ -120,15 +94,9 @@ def SetDailyRank():
                            "score": i.Progress.cumScore, "level": i.level, "imageURL": i.imageLocation})
             if top == 50:
                 break
-        rankList = DailyRank.objects.get(id=1)
-        rankList.rank = json.dumps({"state": "success", "result": result})
-        rankList.save()
-        print({'state': 'success'})
-        return
+        return JsonResponse({"state": "success", "result": result})
     except Exception as e:
-        print({'state': 'fail', "error": e.__str__()})
-        return
-
+        return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 def getNewQuestion(request):
     try:
@@ -403,31 +371,33 @@ def toCancelCollect(request):
 
 
 def judgeAnswer(request):
-    # try:
-    commonUserID = request.POST["commonUserID"]
-    commonUser = CommonUser.objects.get(commonUserID=commonUserID)
-    level = request.POST["level"]
-    questionID = request.POST.get("questionID")
-    if level == "Level1":
-        level = "Level2"
-    example = eval(level).objects.get(questionID=questionID).example
-    if level == "Level4":
-        audiofile = request.FILES.get('file', '')
-        trueAnswer = example.example
-        result = audioRecognize.recognizeAudio(audiofile, trueAnswer)
-        yourAnswer = result["yourAnswer"]
-        result = result["result"]
-    else:
-        trueAnswer = example.meaning
-        yourAnswer = request.POST.get("answer")
-        result = (yourAnswer == trueAnswer)
-    History.objects.create(commonUser=commonUser, questionID=questionID, level=level)
-    commonUser.save()
-    return JsonResponse({'state': 'success', "result": result, "trueAnswer": trueAnswer, "yourAnswer": yourAnswer})
+    try:
+        commonUserID = request.POST["commonUserID"]
+        commonUser = CommonUser.objects.get(commonUserID=commonUserID)
+        level = request.POST["level"]
+        questionID = request.POST.get("questionID")
+        if level == "Level1":
+            level = "Level2"
+        example = eval(level).objects.get(questionID=questionID).example
+        if level == "Level4":
+            audiofile = request.FILES.get('file', '')
+            trueAnswer = example.example
+            result = audioRecognize.recognizeAudio(audiofile, trueAnswer)
+            print(result)
+            if result['state'] == 'fail':
+                raise Exception(result['error'])
+            yourAnswer = result["youranswer"]
+            result = result["result"]
+        else:
+            trueAnswer = example.meaning
+            yourAnswer = request.POST.get("answer")
+            result = (yourAnswer == trueAnswer)
+        History.objects.create(commonUser=commonUser, questionID=questionID, level=level)
+        commonUser.save()
+        return JsonResponse({'state': 'success', "result": result, "trueAnswer": trueAnswer, "yourAnswer": yourAnswer})
+    except Exception as e:
+        return JsonResponse({'state': 'fail', "error": e.__str__()})
 
-
-# except Exception as e:
-#     return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 def getUserRank(request):
     try:
@@ -452,6 +422,8 @@ def getUserRank(request):
         userPercent = format(((len(allCommonUser) - rank) / len(allCommonUser)) * 100, '.2f')
         if commonUser.lastCheckDate.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
             check = True
+        if rank > 100:
+            rank = "未上榜"
         return JsonResponse({"state": "success", "score": score, "rank": rank, "percent": userPercent, "toNext": toNext,
                              "commonUserName": commonUser.commonUserName, "level": commonUser.level,
                              "imageURL": commonUser.imageLocation, 'checked': check,
@@ -671,6 +643,7 @@ def signAddScore(request):
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
+
 def GetLectures(request):
     try:
         allUnits = Unit.objects.all()
@@ -680,6 +653,7 @@ def GetLectures(request):
         return JsonResponse({'state': 'success', "lectures": units})
     except Exception as e:
         return JsonResponse({'state': 'fail', "error": e.__str__()})
+
 
 def single_upload(f):
     file_path = os.path.join(".", ".", os.getcwd(), "template", "Lectures", f.name)  # 拼装目录名称+文件名称
@@ -718,4 +692,3 @@ def LectureUpdate(request):
     else:
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
-

@@ -1,6 +1,6 @@
+import base64
 import json
 import os
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as model, IntegrityError
 from .models import *
@@ -11,6 +11,14 @@ from ffmpy3 import FFmpeg
 import nltk
 import numpy as np
 from django.views.decorators.csrf import csrf_exempt
+from google.cloud import speech_v1p1beta1 as speech
+import traceback
+import tempfile
+
+
+def encode_audio(audio):
+    audio_content = audio.read()
+    return base64.b64encode(audio_content)
 
 
 @csrf_exempt
@@ -55,36 +63,47 @@ def recognize(request):
 @csrf_exempt
 def recognizeAudio(audiofile, answer):
     try:
-        change = os.path.join("Audio", audiofile.name)
-        if not os.path.exists("Audio"):
-            os.mkdir("Audio")
-            os.chmod(os.path.join("Audio", audiofile.name), 0o777)
-        with open(os.path.join(os.getcwd(), 'Audio', audiofile.name), 'wb') as fw:
-            os.chmod(os.path.join(os.getcwd(), "Audio", audiofile.name), 0o777)
+        with tempfile.TemporaryFile() as f:
             for chunck in audiofile.chunks():
-                fw.write(chunck)
-        if (audiofile.name.split('.')[-1] != "wav"):
-            output = os.path.join("Audio", "".join(audiofile.name.split('.')[:-1]) + ".wav")
-            ff = FFmpeg(inputs={change: None}, outputs={output: '-vn -ar 44100 -ac 2 -ab 192k -f wav'})
-            ff.cmd
-            ff.run()
-        else:
-            output = os.path.join("Audio", audiofile.name)
-        r = sr.Recognizer()
-        test = sr.AudioFile(output)
-        with test as source:
-            audio = r.record(source)
-        os.remove(output)
-        if (audiofile.name.split('.')[-1] != "wav"):
-            os.remove(change)
-        # language="cmn-Hans-CN"
-        result = r.recognize_google(audio, language="en-US", show_all=True)
+                f.write(chunck)
+                f.seek(0)
+            audio = speech.RecognitionAudio(content=f.read())
+        result = sample_recognize(audio)
         print("INFO__: ", result)
-        judgeResult = judge(result['alternative'][0]['transcript'], answer)
-        return {'state': 'success', "result": judgeResult, "yourAnswer": result['alternative'][0]['transcript']}
+        judgeResult = judge(result, answer)
+        return {'state': 'success', "result": judgeResult, "youranswer": result}
     except Exception as e:
-        print(e)
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
+        print(e.with_traceback(e.__traceback__))
+        traceback.print_exc()
+        return {'state': 'fail', "error": e.__str__()}
+
+
+def sample_recognize(audio):
+    client = speech.SpeechClient()
+    # The language of the supplied audio
+    language_code = "en-US"
+
+    # Sample rate in Hertz of the audio data sent
+    sample_rate_hertz = 44100
+    # Encoding of audio data sent. This sample sets this explicitly.
+    # This field is optional for FLAC and WAV audio formats.
+    encoding = speech.RecognitionConfig.AudioEncoding.MP3
+    config = {
+        "language_code": language_code,
+        "sample_rate_hertz": sample_rate_hertz,
+        "encoding": encoding,
+    }
+    response = client.recognize(config=config, audio=audio)
+    print(response.results)
+    if not response.results:
+        raise Exception('empty answer')
+    # for result in response.results:
+    #     # First alternative is the most probable result
+    #     alternative = result.alternatives[0]
+    #     print(u"Transcript: {}".format(alternative.transcript))
+    return response.results[0].alternatives[0].transcript
+
+
 
 # import logging, os
 #
@@ -143,16 +162,21 @@ class CheckRight:
 
 @csrf_exempt
 def judge(result, answer):
-    sentences = [result, answer]
-    processedSentences = processPunctuation(sentences)
-    tokens = getTokens(processedSentences)
-    wordVector1, wordVector2 = word2vec(tokens)
-    dist = cosDistance(wordVector1, wordVector2)
-    if dist > 0.75:
-        compareResult = True
-    else:
-        compareResult = False
-    return compareResult
+    try:
+        sentences = [result, answer]
+        processedSentences = processPunctuation(sentences)
+        tokens = getTokens(processedSentences)
+        wordVector1, wordVector2 = word2vec(tokens)
+        dist = cosDistance(wordVector1, wordVector2)
+        if dist > 0.75:
+            compareResult = True
+        else:
+            compareResult = False
+        return compareResult
+    except Exception as e:
+        print(e.__traceback__)
+        traceback.print_exc()
+        return False
 
 
 def processPunctuation(sentences):
@@ -234,7 +258,7 @@ def refreshDatabase(request):
         # return JsonResponse({'state': 'success', 'processed': processed})
         return 'success'
     except Exception as e:
-    #     return JsonResponse({'state': 'failed', 'error': e.__str__()})
+        #     return JsonResponse({'state': 'failed', 'error': e.__str__()})
         return 'failed'
 
 
@@ -247,54 +271,54 @@ def toDataBase(dataframe, dataFrameName):
 
     for index, row in dataframe.iterrows():
         # try:
-            isHave = Concept.objects.filter(conceptName=row["Concept"])
-            allSubConceptName = SubConcept.objects.values_list("subConceptName", flat=True).distinct()
-            if pd.isna(row['Example']):
-                continue
-            if len(isHave) != 0:
-                if pd.isna(row["Sub-Concept 1"]):
-                    subConcept = None
-                elif row["Sub-Concept 1"] in allSubConceptName:
-                    subConcept = SubConcept.objects.get(subConceptName=row["Sub-Concept 1"])
-                else:
-                    subConcept = SubConcept.objects.create(subConceptName=row["Sub-Concept 1"])
-                concept = Concept.objects.get(conceptName=row["Concept"])
+        isHave = Concept.objects.filter(conceptName=row["Concept"])
+        allSubConceptName = SubConcept.objects.values_list("subConceptName", flat=True).distinct()
+        if pd.isna(row['Example']):
+            continue
+        if len(isHave) != 0:
+            if pd.isna(row["Sub-Concept 1"]):
+                subConcept = None
+            elif row["Sub-Concept 1"] in allSubConceptName:
+                subConcept = SubConcept.objects.get(subConceptName=row["Sub-Concept 1"])
             else:
-                if pd.isna(row["Sub-Concept 1"]):
-                    subConcept = None
-                elif row["Sub-Concept 1"] in allSubConceptName:
-                    subConcept = SubConcept.objects.get(subConceptName=row["Sub-Concept 1"])
-                else:
-                    subConcept = SubConcept.objects.create(subConceptName=row["Sub-Concept 1"])
-                concept = Concept.objects.create(conceptName=row["Concept"], conceptID=row["ConceptID"], unit=unit)
-            if pd.isna(row["Sub-Concept 2"]):
-                subConcept2 = None
-            elif row["Sub-Concept 2"] in allSubConceptName:
-                subConcept2 = SubConcept.objects.get(subConceptName=row["Sub-Concept 2"])
+                subConcept = SubConcept.objects.create(subConceptName=row["Sub-Concept 1"])
+            concept = Concept.objects.get(conceptName=row["Concept"])
+        else:
+            if pd.isna(row["Sub-Concept 1"]):
+                subConcept = None
+            elif row["Sub-Concept 1"] in allSubConceptName:
+                subConcept = SubConcept.objects.get(subConceptName=row["Sub-Concept 1"])
             else:
-                subConcept2 = SubConcept.objects.create(subConceptName=row["Sub-Concept 2"])
-            example = Example.objects.update_or_create(unit=unit, concept=concept, subConcept1=subConcept,
-                                                       subConcept2=subConcept2,
-                                                       exampleID=int(row["ExampleID"]), example=row["Example"],
-                                                       meaning=row["Meaning"],
-                                                       translation=row["Translation"],
-                                                       level2Mode=int(row["Level_2"]),
-                                                       level3Mode=int(row["Level_3"]),
-                                                       level4Mode=int(row["Level_4"]),
-                                                       level5Mode=int(row["Level_5"]),
-                                                       level6Mode=int(row["Level_6"]), )[0]
-            if int(row["Level_2"]):
-                Level2.objects.update_or_create(questionID=row["QueationL2ID"], question=row["Question_L2"],
-                                                example=example)
-            if int(row["Level_3"]):
-                Level3.objects.update_or_create(questionID=row["QueationL3ID"], question=row["Question_L3"],
-                                                op1=row["Wrong option 1"],
-                                                op2=row["Wrong option 2"], op3=row["Wrong option 3"], example=example)
-            if int(row["Level_4"]):
-                Level4.objects.update_or_create(questionID=row["QueationL4ID"], question=row["Queation_L4"],
-                                                example=example)
-        # except ValueError as e:
-        #     continue
+                subConcept = SubConcept.objects.create(subConceptName=row["Sub-Concept 1"])
+            concept = Concept.objects.create(conceptName=row["Concept"], conceptID=row["ConceptID"], unit=unit)
+        if pd.isna(row["Sub-Concept 2"]):
+            subConcept2 = None
+        elif row["Sub-Concept 2"] in allSubConceptName:
+            subConcept2 = SubConcept.objects.get(subConceptName=row["Sub-Concept 2"])
+        else:
+            subConcept2 = SubConcept.objects.create(subConceptName=row["Sub-Concept 2"])
+        example = Example.objects.update_or_create(unit=unit, concept=concept, subConcept1=subConcept,
+                                                   subConcept2=subConcept2,
+                                                   exampleID=int(row["ExampleID"]), example=row["Example"],
+                                                   meaning=row["Meaning"],
+                                                   translation=row["Translation"],
+                                                   level2Mode=int(row["Level_2"]),
+                                                   level3Mode=int(row["Level_3"]),
+                                                   level4Mode=int(row["Level_4"]),
+                                                   level5Mode=int(row["Level_5"]),
+                                                   level6Mode=int(row["Level_6"]), )[0]
+        if int(row["Level_2"]):
+            Level2.objects.update_or_create(questionID=row["QueationL2ID"], question=row["Question_L2"],
+                                            example=example)
+        if int(row["Level_3"]):
+            Level3.objects.update_or_create(questionID=row["QueationL3ID"], question=row["Question_L3"],
+                                            op1=row["Wrong option 1"],
+                                            op2=row["Wrong option 2"], op3=row["Wrong option 3"], example=example)
+        if int(row["Level_4"]):
+            Level4.objects.update_or_create(questionID=row["QueationL4ID"], question=row["Queation_L4"],
+                                            example=example)
+    # except ValueError as e:
+    #     continue
 
 
 def addNewQuestion(request):
