@@ -34,11 +34,15 @@ DEBUG = True
 
 # ALLOWED_HOSTS = ['34.92.251.246', '127.0.0.1', 'aitutor.uic.edu.cn']
 ALLOWED_HOSTS = ['*']
+
 # Application definition
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# 图片储存根路径
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# 图片访问url
+MEDIA_URL = '/media/'
+
 INSTALLED_APPS = [
     'django_crontab',
     'django.contrib.admin',
@@ -120,13 +124,6 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-# 图片储存根路径
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# 图片访问url
-MEDIA_URL = '/media/'
-
 # 日期格式
 DATE_INPUT_FORMATS = ['%Y-%m-%d']
 
@@ -135,4 +132,4 @@ DATE_INPUT_FORMATS = ['%Y-%m-%d']
 #     ('0 5 * * *', 'questionRecord.views.SetDailyRank', '>/home/test.log')
 # ]
 
-CRONTAB_COMMAND_SUFFIX = '2>&1'
+# CRONTAB_COMMAND_SUFFIX = '2>&1'
