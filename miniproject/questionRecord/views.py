@@ -17,7 +17,6 @@ from weixin import WXAPPAPI
 from google.cloud import texttospeech
 from datetime import datetime, timedelta
 from random import shuffle
-from django.views.generic.edit import FormView
 from .forms import FileFieldForm
 
 # Create your views here.
@@ -25,10 +24,6 @@ from .forms import FileFieldForm
 
 AppID = "wxd27ea3eb3d649f0d"
 AppSecret = os.environ["MINIPG_KEY"]
-
-
-# cd AI_teaching/AI_teaching_project/miniproject
-
 
 def get_user_info(js_code, userinfo, iv):
     api = WXAPPAPI(AppID, AppSecret)
@@ -463,12 +458,6 @@ def textToSpeechEN_CN(request):
         response = client.synthesize_speech(
             input=synthesis_input, voice=voice, audio_config=audio_config
         )
-        # The response's audio_content is binary.
-        # with open("output.mp3", "wb") as out:
-        #     # Write the response to the output file.
-        #     out.write(response.audio_content)
-        #     print('Audio content written to file "output.mp3"')
-        # audio = base64.b64decode(response.audio_content)
         audio = base64.b64decode(response.audio_content)
         print(audio)
         return HttpResponse(response.audio_content, content_type='audio/mp3')

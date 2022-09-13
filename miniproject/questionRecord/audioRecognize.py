@@ -1,13 +1,9 @@
 import base64
-import json
 import os
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as model, IntegrityError
 from .models import *
 import pandas as pd
-import speech_recognition as sr
-from django.http import JsonResponse, HttpResponse
-from ffmpy3 import FFmpeg
 import nltk
 import numpy as np
 from django.views.decorators.csrf import csrf_exempt
@@ -22,45 +18,6 @@ def encode_audio(audio):
 
 
 @csrf_exempt
-def recognize(request):
-    try:
-        audiofile = request.FILES.get('file', '')
-        answer = request.POST.get('answer', '')
-        change = os.path.join("Audio", audiofile.name)
-        if not os.path.exists("Audio"):
-            os.mkdir("Audio")
-            os.chmod(os.path.join("Audio", audiofile.name), 0o777)
-        with open(os.path.join(os.getcwd(), 'Audio', audiofile.name), 'wb') as fw:
-            os.chmod(os.path.join(os.getcwd(), "Audio", audiofile.name), 0o777)
-            for chunck in audiofile.chunks():
-                fw.write(chunck)
-        if (audiofile.name.split('.')[-1] != "wav"):
-            output = os.path.join("Audio", "".join(audiofile.name.split('.')[:-1]) + ".wav")
-            ff = FFmpeg(inputs={change: None}, outputs={output: '-vn -ar 44100 -ac 2 -ab 192k -f wav'})
-            ff.cmd
-            ff.run()
-        else:
-            output = os.path.join("Audio", audiofile.name)
-        r = sr.Recognizer()
-        test = sr.AudioFile(output)
-        with test as source:
-            audio = r.record(source)
-        os.remove(output)
-        if (audiofile.name.split('.')[-1] != "wav"):
-            os.remove(change)
-        # language="cmn-Hans-CN"
-        result = r.recognize_google(audio, language="en-US", show_all=True)
-        judgeResult = judge(result['alternative'][0]['transcript'], answer)
-        return JsonResponse(
-            {'state': 'success', "result": judgeResult, "yourAnswer": result['alternative'][0]['transcript'],
-             "trueAnswer": answer})
-
-    except Exception as e:
-        print(e)
-        return JsonResponse({'state': 'fail', "error": e.__str__()})
-
-
-@csrf_exempt
 def recognizeAudio(audiofile, answer):
     try:
         with tempfile.TemporaryFile() as f:
@@ -68,7 +25,7 @@ def recognizeAudio(audiofile, answer):
                 f.write(chunck)
                 f.seek(0)
             audio = speech.RecognitionAudio(content=f.read())
-        result = sample_recognize(audio)
+        result = speech2text(audio)
         print("INFO__: ", result)
         judgeResult = judge(result, answer)
         return {'state': 'success', "result": judgeResult, "youranswer": result}
@@ -78,7 +35,7 @@ def recognizeAudio(audiofile, answer):
         return {'state': 'fail', "error": e.__str__()}
 
 
-def sample_recognize(audio):
+def speech2text(audio):
     client = speech.SpeechClient()
     # The language of the supplied audio
     language_code = "en-US"
@@ -102,17 +59,6 @@ def sample_recognize(audio):
     #     alternative = result.alternatives[0]
     #     print(u"Transcript: {}".format(alternative.transcript))
     return response.results[0].alternatives[0].transcript
-
-
-
-# import logging, os
-#
-# # make sure there's a directory called "log"
-# if not os.path.exists("./log"):
-#     os.mkdir("./log")
-#
-# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s', \
-#                     datefmt='%a, %d %b %Y %H:%M:%S', filename="log/debug.log", filemode='a')  # initialize the format
 
 
 @csrf_exempt
