@@ -6,6 +6,8 @@ import random
 # Import the base64 encoding library.
 import base64
 # Pass the audio data to an encoding function.
+import traceback
+
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
@@ -58,6 +60,8 @@ def userinfo(request):
         return JsonResponse(
             {"state": "success", "OpenID": user_info['openId'], "Name": name, "Photo": commonUser.imageLocation})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({"state": "fail", "error": e.__str__()})
 
 
@@ -77,6 +81,8 @@ def getUserInformation(request):
                              "imageURL": commonUser.imageLocation,
                              })
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 def getRank(request):
@@ -92,6 +98,8 @@ def getRank(request):
                 break
         return JsonResponse({"state": "success", "result": result})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 def getNewQuestion(request):
@@ -124,6 +132,8 @@ def getNewQuestion(request):
                     break
             return JsonResponse({"state": "success", "question": question})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -148,6 +158,8 @@ def getOneQuesiton(request):
             example = Example.objects.get(exampleID=questionID)
             return JsonResponse({"state": "success", "question": serializationQuestion(example, level, commonUser)})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -164,6 +176,8 @@ def getWrongQuestion(request):
             wrongQuestion.append(serializationQuestion(example, level, commonUser))
         return JsonResponse({"state": "success", "question": wrongQuestion})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -195,6 +209,8 @@ def getNotesCollection(request):
         collectedDict = sorted(collectedDict.items(), key=lambda i: int(i[0][i[0].rfind("T") + 1:]))
         return JsonResponse({"state": "success", "collectedQuestion": collectedDict})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -274,6 +290,8 @@ def getHistoryNum(request):
 
         return JsonResponse({"state": "success", "allDone": historyQuestion, "allNum": allNum})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -360,6 +378,8 @@ def toCollect(request):
         NotesCollection.objects.create(commonUser=commonUser, level=level, questionID=questionID)
         return JsonResponse({"state": "success"})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -372,6 +392,8 @@ def toCancelCollect(request):
         NotesCollection.objects.get(commonUser=commonUser, level=level, questionID=questionID).delete()
         return JsonResponse({"state": "success"})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -401,6 +423,8 @@ def judgeAnswer(request):
         commonUser.save()
         return JsonResponse({'state': 'success', "result": result, "trueAnswer": trueAnswer, "yourAnswer": yourAnswer})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -434,6 +458,8 @@ def getUserRank(request):
                              "imageURL": commonUser.imageLocation, 'checked': check,
                              'days': commonUser.continueCheckDays})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -465,6 +491,8 @@ def textToSpeechEN_CN(request):
         print(audio)
         return HttpResponse(response.audio_content, content_type='audio/mp3')
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -509,6 +537,8 @@ def textToSpeechEN(request):
         print(audio)
         return HttpResponse(response.audio_content, content_type='audio/mp3')
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -542,6 +572,8 @@ def recordAnswer(request):
         commonUser.save()
         return JsonResponse({'state': 'success', "score": commonUser.Progress.cumScore, "level": commonUser.level})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -558,6 +590,8 @@ def getWrongNum(request):
         wrongQuestionNum["total"] = Wrong.objects.filter(commonUser=commonUser).aggregate(latest=Count('*'))["latest"]
         return JsonResponse({"state": "success", "wrongQuestionNum": wrongQuestionNum, "level": commonUser.level})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -591,6 +625,8 @@ def correctAnswer(request):
         commonUser.save()
         return JsonResponse({'state': 'success', "score": commonUser.Progress.cumScore, "level": commonUser.level})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -640,6 +676,8 @@ def signAddScore(request):
             return JsonResponse(
                 {"state": "success", "score": commonUser.Progress.cumScore, "level": commonUser.level, "checked": True})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
@@ -651,6 +689,8 @@ def GetLectures(request):
             units.append({"name": u.unitName, "lock": True if u.lock == 1 else False})
         return JsonResponse({'state': 'success', "lectures": units})
     except Exception as e:
+        print(e.with_traceback(e.__traceback__))
+        print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
 
