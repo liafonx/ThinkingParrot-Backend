@@ -88,7 +88,7 @@ def getRank(request):
             top += 1
             result.append({"commonUserID": i.commonUserID, "commonUserName": i.commonUserName,
                            "score": i.Progress.cumScore, "level": i.level, "imageURL": i.imageLocation})
-            if top == 50:
+            if top == 100:
                 break
         return JsonResponse({"state": "success", "result": result})
     except Exception as e:
@@ -247,17 +247,20 @@ def getHistoryNum(request):
                 eval(i).objects.filter(example__unit__unitName=lecture).aggregate(latest=Count('*'))["latest"]
             if i == "Level2":
                 if historyQuestion["Level1"]["doneNum"] < historyQuestion["Level1"]["allLevelNum"]:
-                    historyQuestion[i]["whetherLock"] = True
+                    #historyQuestion[i]["whetherLock"] = True
+                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
             elif i == "Level3":
                 if historyQuestion["Level2"]["doneNum"] < historyQuestion["Level2"]["allLevelNum"] * 0.85:
-                    historyQuestion[i]["whetherLock"] = True
+                    # historyQuestion[i]["whetherLock"] = True
+                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
             elif i == "Level4":
                 if historyQuestion["Level3"]["doneNum"] < historyQuestion["Level3"]["allLevelNum"] * 0.85:
-                    historyQuestion[i]["whetherLock"] = True
+                    # historyQuestion[i]["whetherLock"] = True
+                    historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
 

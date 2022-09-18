@@ -17,7 +17,7 @@ from django.template.defaultfilters import join
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-os.environ["MINIPG_KEY"] = open('key/thinking-parrot.key').read()
+os.environ["MINIPG_KEY"] = open('key/miniprogram.key').read()
 os.environ["DJANGO_KEY"] = open('key/django.key').read()
 os.environ["DATABASE"] = open('key/database.json').read()
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key/radiant-snow-300905-5dfba126430b.json'
