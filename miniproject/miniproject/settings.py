@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ["MINIPG_KEY"] = open('key/miniprogram.key').read()
 os.environ["DJANGO_KEY"] = open('key/django.key').read()
 os.environ["DATABASE"] = open('key/database.json').read()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key/radiant-snow-300905-5dfba126430b.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key/radiant-snow-api.json'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
