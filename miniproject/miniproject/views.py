@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import itertools
 
 # USE_CUDA = torch.cuda.is_available()
-from miniproject.miniproject.Chatbot.LeeOscillator import LeeOscillator
+# from miniproject.miniproject.Chatbot.LeeOscillator import LeeOscillator
 
 USE_CUDA = False
 device = torch.device("cuda" if USE_CUDA else "cpu")
@@ -143,7 +143,7 @@ class DataAdjustment:
         return ([e for e in t if e != None] for t in itertools.zip_longest(*args))
 
 
-Lee = LeeOscillator()
+# Lee = LeeOscillator()
 
 
 class EncoderGRU(nn.Module):
