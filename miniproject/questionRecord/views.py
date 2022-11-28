@@ -702,6 +702,8 @@ def single_upload(f):
     destination.close()
 
 
+
+
 def LectureUpdate(request):
     if request.method == 'POST':
         if 'upload' in request.POST:
