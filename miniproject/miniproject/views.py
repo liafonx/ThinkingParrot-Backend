@@ -321,6 +321,7 @@ def response_only(input_sentence):
 
 def ChatbotGetMessage(request):
     message = request.POST.get("message")
+    print(message)
     input_sentence = TextPreprocessing.normalizeString(message)
     output_words = InputProcessing.evaluate(encoder, decoder, searcher, voc, input_sentence)
 
