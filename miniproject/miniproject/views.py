@@ -238,7 +238,7 @@ checkpoint = torch.load(load_path, map_location=torch.device("cpu"))
 
 encoder_state_dict = checkpoint["en"]
 decoder_state_dict = checkpoint["de"]
-print(encoder_state_dict)
+# print(encoder_state_dict)
 embedding_state_dict = checkpoint["embedding"]
 voc = checkpoint["voc_dict"]
 # print(voc)
@@ -321,7 +321,7 @@ def response_only(input_sentence):
 
 def ChatbotGetMessage(request):
     message = request.POST.get("message")
-    print(message)
+    print(request)
     input_sentence = TextPreprocessing.normalizeString(message)
     output_words = InputProcessing.evaluate(encoder, decoder, searcher, voc, input_sentence)
 
