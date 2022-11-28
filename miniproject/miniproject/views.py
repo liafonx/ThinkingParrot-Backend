@@ -233,7 +233,7 @@ class AttnDecoderGRU(nn.Module):
 
 
 # if __name__ == "__main__":
-load_path = 'Chatbot/31536-512-50-0.0001_3.tar'
+load_path = '/home/Ubuntu-UIC/ThinkingParrot-Backend/miniproject/miniproject/Chatbot/31536-512-50-0.0001_3.tar'
 checkpoint = torch.load(load_path, map_location=torch.device("cpu"))
 
 encoder_state_dict = checkpoint["en"]
