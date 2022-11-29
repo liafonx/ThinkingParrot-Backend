@@ -20,13 +20,14 @@ from google.cloud import texttospeech
 from datetime import datetime, timedelta
 from random import shuffle
 from .forms import FileFieldForm
-from ..miniproject import chatbot as bot
+from chatbot import TextPreprocessing, InputProcessing
 
 # Create your views here.
 
 
 AppID = "wxd27ea3eb3d649f0d"
 AppSecret = os.environ["MINIPG_KEY"]
+
 
 def get_user_info(js_code, userinfo, iv):
     api = WXAPPAPI(AppID, AppSecret)
@@ -86,6 +87,7 @@ def getUserInformation(request):
         print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
 
+
 def getRank(request):
     try:
         allCommonUser = CommonUser.objects.order_by("-Progress__cumScore")
@@ -102,6 +104,7 @@ def getRank(request):
         print(e.with_traceback(e.__traceback__))
         print(traceback.print_exc())
         return JsonResponse({'state': 'fail', "error": e.__str__()})
+
 
 def getNewQuestion(request):
     try:
@@ -264,7 +267,7 @@ def getHistoryNum(request):
                 eval(i).objects.filter(example__unit__unitName=lecture).aggregate(latest=Count('*'))["latest"]
             if i == "Level2":
                 if historyQuestion["Level1"]["doneNum"] < historyQuestion["Level1"]["allLevelNum"]:
-                    #historyQuestion[i]["whetherLock"] = True
+                    # historyQuestion[i]["whetherLock"] = True
                     historyQuestion[i]["whetherLock"] = False
                 else:
                     historyQuestion[i]["whetherLock"] = False
@@ -703,8 +706,6 @@ def single_upload(f):
     destination.close()
 
 
-
-
 def LectureUpdate(request):
     if request.method == 'POST':
         if 'upload' in request.POST:
@@ -735,11 +736,12 @@ def LectureUpdate(request):
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
 
+
 def ChatbotGetMessage(request):
     message = request.POST.get("message")
     print(request)
-    input_sentence = bot.TextPreprocessing.normalizeString(message)
-    output_words = bot.InputProcessing.evaluate(input_sentence)
+    input_sentence = TextPreprocessing.normalizeString(message)
+    output_words = InputProcessing.evaluate(input_sentence)
 
     outword = []
     for j in output_words:
