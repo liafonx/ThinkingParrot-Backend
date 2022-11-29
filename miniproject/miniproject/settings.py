@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import json
 import os
 import sys
-sys.path.append('~/ThinkingParrot-Backend/')
+sys.path.append('/home/Ubuntu-UIC/ThinkingParrot-Backend/')
 import chatbot
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 

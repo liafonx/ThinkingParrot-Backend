@@ -3,7 +3,7 @@ import sys
 
 from django.http import JsonResponse
 
-sys.path.append('~/ThinkingParrot-Backend/')
+sys.path.append('/home/Ubuntu-UIC/ThinkingParrot-Backend/')
 # from miniproject import chatbot
 from chatbot import TextPreprocessing, InputProcessing
 
