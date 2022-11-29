@@ -154,28 +154,14 @@ class EncoderGRU(nn.Module):
         self.gru = nn.GRU(hidden_size,
                           hidden_size,
                           bidirectional=True)
-        # self.gru = ChaoticGRU(hidden_size, hidden_size, Lee, True, True)
-
-    #         # self.gru2 = ChaoticGRU(hidden_size, hidden_size, Lee, True, True)
-    #         self.rnn1 = ChaoticLSTM(hidden_size, hidden_size, Lee, True, True)
-    #         self.rnn2 = ChaoticLSTM(hidden_size, hidden_size, Lee, True, True)
 
     def forward(self, input_seq, input_lengths, hidden=None):
         embedded = self.embedding(input_seq)
-        # print("In: EncoderGRU, embedded", embedded.size())
-        # packed = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
+
         outputs, hidden = self.gru(embedded, hidden)
-        #         outputs1, hidden1 = self.rnn1(embedded, initStates=hidden)
-        #         # print("In: EncoderGRU, outputs_1*", outputs1.size(), " hidden: ", hidden1.size())
-        #         outputs, hidden2 = self.rnn2(embedded, initStates=hidden1)
-        #         (hidden1, _) = hidden1
-        #         (hidden2, _) = hidden2
-        #         hidden = torch.cat([hidden1, hidden2], dim=0)
-        # hidden: [batch_size, 2, hidden_size]
-        # outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs)
-        # print("In: EncoderGRU, outputs_1", outputs2.size())
+
         outputs = outputs[:, :, :self.hidden_size] + outputs[:, :, self.hidden_size:]
-        # print("In: EncoderGRU, outputs_2", outputs2.size(), " hidden: ", hidden.size())
+
         return outputs, hidden
 
 
@@ -183,7 +169,7 @@ class AttnDecoderGRU(nn.Module):
     def __init__(self, embedding, hidden_size,
                  output_size):
         super(AttnDecoderGRU, self).__init__()
-        # decoder_input, decoder_hidden, encoder_outputs
+
         self.hidden_size = hidden_size
         self.output_size = output_size
         # Define layers
@@ -233,7 +219,7 @@ class AttnDecoderGRU(nn.Module):
 
 
 # if __name__ == "__main__":
-load_path = '/home/Ubuntu-UIC/ThinkingParrot-Backend/miniproject/miniproject/Chatbot/31536-512-50-0.0001_3.tar'
+load_path = '/home/Ubuntu-UIC/ThinkingParrot-Backend/miniproject/questionRecord/Chatbot/31536-512-50-0.0001_3.tar'
 checkpoint = torch.load(load_path, map_location=torch.device("cpu"))
 
 encoder_state_dict = checkpoint["en"]
@@ -263,7 +249,7 @@ searcher = DecoderPredict(encoder, decoder)
 
 
 class InputProcessing:
-    def evaluate(encoder, decoder, searcher, voc, sentence, max_length=MAX_LENGTH):
+    def evaluate(sentence, max_length=MAX_LENGTH):
         indexes_batch = [DataAdjustment.tokenization(voc, sentence)]
         lengths = torch.tensor([len(indexes) for indexes in indexes_batch])
         input_batch = torch.LongTensor(indexes_batch).transpose(0, 1)

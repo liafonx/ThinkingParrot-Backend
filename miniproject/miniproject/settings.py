@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 import json
 import os
-
+import miniproject.questionRecord.chatbot
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from django.template.defaultfilters import join
 

@@ -24,6 +24,5 @@ from .settings import MEDIA_ROOT
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^questionRecord/', include(('questionRecord.urls', 'questionRecord'))),
-    url(r"^questionRecord/ChatbotGetMessage/$", views.ChatbotGetMessage),
     url(r'^media/(?P<path>.*)', serve, {'document_root': MEDIA_ROOT}),
 ]
