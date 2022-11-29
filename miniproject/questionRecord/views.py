@@ -7,7 +7,7 @@ import random
 import base64
 # Pass the audio data to an encoding function.
 import traceback
-import re
+
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
@@ -20,7 +20,7 @@ from google.cloud import texttospeech
 from datetime import datetime, timedelta
 from random import shuffle
 from .forms import FileFieldForm
-from chatbot import TextPreprocessing, InputProcessing
+
 # Create your views here.
 
 
@@ -733,32 +733,3 @@ def LectureUpdate(request):
     else:
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
-
-def ChatbotGetMessage(request):
-    message = request.POST.get("message")
-    print(request)
-    input_sentence = TextPreprocessing.normalizeString(message)
-    output_words = InputProcessing.evaluate(input_sentence)
-
-    outword = []
-    for j in output_words:
-        if j == 'EOS':
-            break
-        elif j != 'PAD':
-            outword.append(j)
-    string = ' '.join(outword)
-    string = re.sub(' ll ', "'ll ", string)
-    string = re.sub(' t ', "'t ", string)
-    string = re.sub(' d ', "'d ", string)
-    string = re.sub(' re ', "'re ", string)
-    string = re.sub(' s ', "'s ", string)
-    string = re.sub(' m ', " am ", string)
-    string = re.sub(' ve ', "'ve ", string)
-    # out_dict[i] = string
-
-    # for j in input_list:
-    #     print("Human :", j)
-    #     print("Bot   :", out_dict[j])
-
-    # reply = ' '.join(string).strip()
-    return JsonResponse({'state': 'success', "response": string})

@@ -32,5 +32,4 @@ urlpatterns = [
     url(r"^textToSpeechEN/$", views.textToSpeechEN),
     url(r"^GetLectures/$", views.GetLectures),
     url(r"^recognize$", audioRecognize.recognizeAudio, name="recognize"),
-    url(r"^ChatbotGetMessage/$", views.ChatbotGetMessage),
 ]
