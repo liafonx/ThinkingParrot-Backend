@@ -1,15 +1,18 @@
 import re
+import sys
 
 from django.http import JsonResponse
 
+sys.path.append('~/ThinkingParrot-Backend/')
 # from miniproject import chatbot
-import chatbot
+from chatbot import TextPreprocessing, InputProcessing
+
 
 def ChatbotGetMessage(request):
     message = request.POST.get("message")
     print(request)
-    input_sentence = chatbot.TextPreprocessing.normalizeString(message)
-    output_words = chatbot.InputProcessing.evaluate(input_sentence)
+    input_sentence = TextPreprocessing.normalizeString(message)
+    output_words = InputProcessing.evaluate(input_sentence)
 
     outword = []
     for j in output_words:
