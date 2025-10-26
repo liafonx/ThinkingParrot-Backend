@@ -1,5 +1,8 @@
 miniproject/uwsgi.*
-
+.idea/
+_MACOSX/
+__pycache__/
+.DS_Store
 miniproject/miniproject.conf
 
 miniproject/key
@@ -128,7 +131,7 @@ cover/
 # Translations
 *.mo
 
-miniproject/miniproject/Chatbot/31536-512-50-0.0001_3.tar
+Chatbot/31536-512-50-0.0001_3.tar
 
 # Django stuff:
 local_settings.py
@@ -233,3 +236,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+miniproject/.DS_Store
+miniproject/template/.DS_Store
+.gitignore
+.DS_Store

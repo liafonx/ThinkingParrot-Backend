@@ -143,63 +143,46 @@ class DataAdjustment:
         return ([e for e in t if e != None] for t in itertools.zip_longest(*args))
 
 
-# Lee = LeeOscillator()
+Lee = LeeOscillator()
 
 
-class EncoderGRU(nn.Module):
+class EncoderLSTM(nn.Module):
     def __init__(self, hidden_size, embedding):
-        super(EncoderGRU, self).__init__()
+        super(EncoderLSTM, self).__init__()
         self.hidden_size = hidden_size
         self.embedding = embedding
-        self.gru = nn.GRU(hidden_size,
-                          hidden_size,
-                          bidirectional=True)
+        self.lstm = ChaoticLSTM(hidden_size, hidden_size, Lee, True, False)
 
     def forward(self, input_seq, input_lengths, hidden=None):
         embedded = self.embedding(input_seq)
 
-        outputs, hidden = self.gru(embedded, hidden)
+        outputs, hidden = self.lstm(embedded, hidden)
 
         outputs = outputs[:, :, :self.hidden_size] + outputs[:, :, self.hidden_size:]
 
         return outputs, hidden
 
 
-class AttnDecoderGRU(nn.Module):
+class AttnDecoderLSTM(nn.Module):
     def __init__(self, embedding, hidden_size,
                  output_size):
-        super(AttnDecoderGRU, self).__init__()
+        super(AttnDecoderLSTM, self).__init__()
 
         self.hidden_size = hidden_size
         self.output_size = output_size
         # Define layers
         self.embedding = embedding
-        self.gru = nn.GRU(hidden_size,
-                          hidden_size,
-                          bidirectional=False)
-        # self.gru = ChaoticGRU(hidden_size, hidden_size, Lee, True, False)
-        # self.gru2 = ChaoticGRU(hidden_size, hidden_size, Lee, True, False)
-        #         self.rnn1 = ChaoticLSTM(hidden_size, hidden_size, Lee, True, False)
-        #         self.rnn2 = ChaoticLSTM(hidden_size, hidden_size, Lee, True, False)
+        self.lstm = ChaoticLSTM(hidden_size, hidden_size, Lee, True, False)
         self.concat = nn.Linear(hidden_size * 2, hidden_size)
         self.out = nn.Linear(hidden_size, output_size)
 
     def forward(self, input_step, last_hidden, encoder_outputs):
-        # print("In: AttnDecoderGRU, input_step", input_step.size())
+        # print("In: AttnDecoderLSTM, input_step", input_step.size())
         embedded = self.embedding(input_step)
-        # print("In: AttnDecoderGRU, embedded", embedded.size(), "hidden: ", last_hidden.size())
-        # Forward through unidirectional GRU
-        #         h = last_hidden[-1:]
-        #         h = torch.cat(h.split(1), dim=-1).squeeze(0)
-        #         c = torch.zeros(h.size()).to(h.device)
-        #         current_output1, current_hidden1 = self.rnn1(embedded, initStates=(h, c))
-        #         gru_output, current_hidden2 = self.rnn2(embedded, initStates=current_hidden1)
-        #         (current_hidden1, _) = current_hidden1
-        #         (current_hidden2, _) = current_hidden2
-        #         hidden = torch.cat([current_hidden1, current_hidden2], dim=0)
-        gru_output, hidden = self.gru(embedded, last_hidden)
+        # print("In: AttnDecoderLSTM, embedded", embedded.size(), "hidden: ", last_hidden.size())
+        gru_output, hidden = self.lstm(embedded, last_hidden)
         # hidden = hidden.unsqueeze(0)
-        # print("In: AttnDecoderGRU, gru_output", gru_output.size(), "hidden: ", hidden.size())
+        # print("In: AttnDecoderLSTM, gru_output", gru_output.size(), "hidden: ", hidden.size())
         # Calculate attention weights from the current GRU output
         luong_dot_score = torch.sum(gru_output * encoder_outputs, dim=2)
         attn_energies = luong_dot_score.t()
@@ -214,7 +197,7 @@ class AttnDecoderGRU(nn.Module):
 
         output = self.out(concat_output)
         output = F.softmax(output, dim=1)
-        # print("In: AttnDecoderGRU, output", output.size(), " hidden: ", hidden.size())
+        # print("In: AttnDecoderLSTM, output", output.size(), " hidden: ", hidden.size())
         return output, hidden
 
 
@@ -232,9 +215,9 @@ embedding = torch.nn.Embedding(num_embeddings=voc["num_words"],
                                embedding_dim=hidden_size)
 embedding.load_state_dict(embedding_state_dict)
 
-encoder = EncoderGRU(hidden_size=hidden_size, embedding=embedding)
+encoder = EncoderLSTM(hidden_size=hidden_size, embedding=embedding)
 
-decoder = AttnDecoderGRU(embedding=embedding, hidden_size=hidden_size, output_size=voc["num_words"])
+decoder = AttnDecoderLSTM(embedding=embedding, hidden_size=hidden_size, output_size=voc["num_words"])
 
 decoder.load_state_dict(decoder_state_dict)
 encoder.load_state_dict(encoder_state_dict)
