@@ -3,9 +3,10 @@ import sys
 
 from django.http import JsonResponse
 
-sys.path.append('/home/Ubuntu-UIC/ThinkingParrot-Backend/')
+# sys.path.append('/home/Ubuntu-UIC/ThinkingParrot-Backend/Chatbot')
+sys.path.append('/Users/liafo/Documents/GitWorkspace/ThinkingParrot-Backend/Chatbot')
 # from miniproject import chatbot
-from chatbot import TextPreprocessing, InputProcessing
+from Chatbot import TextPreprocessing, InputProcessing
 
 
 def ChatbotGetMessage(request):

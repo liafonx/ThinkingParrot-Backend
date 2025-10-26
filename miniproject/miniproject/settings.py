@@ -13,7 +13,6 @@ import json
 import os
 import sys
 sys.path.append('/home/Ubuntu-UIC/ThinkingParrot-Backend/')
-import chatbot
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

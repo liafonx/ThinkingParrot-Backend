@@ -1,5 +1,5 @@
 # Lib for Preprocessing and load data
-
+import sys
 from io import open
 import re
 import unicodedata
@@ -9,12 +9,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import itertools
-
+import numpy as np
 # USE_CUDA = torch.cuda.is_available()
 # from miniproject.miniproject.Chatbot.LeeOscillator import LeeOscillator
-
+# sys.path.append('/home/Ubuntu-UIC/ThinkingParrot-Backend/Chatbot')
+# sys.path.append('/Users/liafo/Documents/GitWorkspace/ThinkingParrot-Backend/Chatbot')
+from LeeOscillator import LeeOscillator
+from ChaoticLSTM import ChaoticLSTM
 USE_CUDA = False
-device = torch.device("cuda" if USE_CUDA else "cpu")
+device = torch.device("cuda" if USE_CUDA else "mps")
+# device = torch.device("cuda" if USE_CUDA else "cpu")
 torch.manual_seed(1)
 
 MAX_LENGTH = 10  # Maximum sentence length to consider
@@ -24,7 +28,6 @@ SOS_token = 1  # Start-of-sentence token
 EOS_token = 2  # End-of-sentence token
 
 hidden_size = 1536
-
 
 class Voc:
     def __init__(self, name):
@@ -202,8 +205,10 @@ class AttnDecoderLSTM(nn.Module):
 
 
 # if __name__ == "__main__":
-load_path = '/home/Ubuntu-UIC/ThinkingParrot-Backend/miniproject/miniproject/Chatbot/31536-512-50-0.0001_3.tar'
-checkpoint = torch.load(load_path, map_location=torch.device("cpu"))
+# load_path = '/home/Ubuntu-UIC/ThinkingParrot-Backend/miniproject/miniproject/Chatbot/31536-512-50-0.0001_3.tar'
+load_path = '/Users/liafo/Documents/GitWorkspace/ThinkingParrot-Backend/Chatbot/31536-512-50-0.0001_3.tar'
+# checkpoint = torch.load(load_path, map_location=torch.device("cpu"))
+checkpoint = torch.load(load_path, map_location=torch.device("mps"))
 
 encoder_state_dict = checkpoint["en"]
 decoder_state_dict = checkpoint["de"]

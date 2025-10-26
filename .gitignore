@@ -131,8 +131,6 @@ cover/
 # Translations
 *.mo
 
-Chatbot/31536-512-50-0.0001_3.tar
-
 # Django stuff:
 local_settings.py
 db.sqlite3-journal
@@ -240,3 +238,4 @@ miniproject/.DS_Store
 miniproject/template/.DS_Store
 .gitignore
 .DS_Store
+miniproject/template/Lectures.zip

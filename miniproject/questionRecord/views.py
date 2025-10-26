@@ -40,7 +40,7 @@ def get_user_info(js_code, userinfo, iv):
 def userinfo(request):
     try:
         code = request.POST.get('code', None)
-        userinfo = request.POST.get("userinfo", "")
+        userinfo = request.POST.get("userinfo", "")  # Default Value
         name = request.POST.get("name", "")
         iv = request.POST.get("iv", "")
         user_info = get_user_info(code, userinfo, iv)
@@ -725,7 +725,6 @@ def LectureUpdate(request):
             return render(request, 'lectureUpdate.html', locals())
         elif 'refresh' in request.POST:
             form = FileFieldForm()
-
             refreshState = audioRecognize.refreshDatabase(request)
             print(refreshState)
             return render(request, 'lectureUpdate.html', locals())
@@ -733,5 +732,3 @@ def LectureUpdate(request):
     else:
         form = FileFieldForm()
     return render(request, 'lectureUpdate.html', locals())
-
-
