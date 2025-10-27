@@ -8,7 +8,7 @@ Backend service powering the [ThinkingParrot](https://github.com/liafonx/Thinkin
 
 ---
 
-## 🔗 Related Repositories
+## Related Repositories
 
 - **[ThinkingParrot](https://github.com/liafonx/ThinkingParrot)** - Main project overview, learning methodology, and documentation
 - **[ThinkingParrot-Miniprogram](https://github.com/liafonx/ThinkingParrot-Miniprogram)** - WeChat Mini Program frontend
@@ -16,7 +16,7 @@ Backend service powering the [ThinkingParrot](https://github.com/liafonx/Thinkin
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Python 3.7+** / **Django 2.2.5** - Backend framework
 - **SQLite** (dev) / **MySQL** (prod) - Database
@@ -28,7 +28,7 @@ Backend service powering the [ThinkingParrot](https://github.com/liafonx/Thinkin
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ThinkingParrot-Backend/
@@ -66,7 +66,7 @@ ThinkingParrot-Backend/
 
 ---
 
-## 🎯 Key Features
+## Key Features
 
 ### Audio Answer Check (Level 4)
 - Speech-to-Text via Google Cloud
@@ -93,7 +93,7 @@ ThinkingParrot-Backend/
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Chatbot
 - `POST /ChatbotGetMessage/` - AI conversation (Level 6)
@@ -133,7 +133,7 @@ ThinkingParrot-Backend/
 
 ---
 
-## 🗄️ Database Models
+## Database Models
 
 9 main models power the learning system:
 
@@ -152,7 +152,7 @@ ThinkingParrot-Backend/
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
