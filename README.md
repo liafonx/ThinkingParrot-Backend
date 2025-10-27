@@ -64,8 +64,6 @@ ThinkingParrot-Backend/
 └── README.md                   # This file
 ```
 
-**Note:** `key/`, `media/`, `log/`, and `db.sqlite3` are excluded from version control (.gitignore).
-
 ---
 
 ## 🚀 Installation
