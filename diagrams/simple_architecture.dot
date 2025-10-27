@@ -1,0 +1,63 @@
+digraph SimpleArchitecture {
+    rankdir=TB;
+    node [shape=box, style="rounded,filled", fontname="Arial", fontsize=13, height=1.2];
+    graph [fontname="Arial", fontsize=18, label="ThinkingParrot AI Tutor - System Architecture", labelloc=t, pad=0.3, nodesep=0.6, ranksep=0.8];
+    
+    // Client
+    client [label="WeChat MiniProgram", fillcolor="#FFE4B5", shape=box, width=3, height=0.8];
+    
+    // Router
+    router [label="Django URL Router", fillcolor="#87CEEB", width=3, height=0.8];
+    
+    // Main Features Row
+    quiz [label="Quiz & Questions\n━━━━━━━━━━━\n• Get/Judge/Record\n• Progress & History\n• Wrong Answer Review\n• Notes Collection\n• Pronunciation (TTS)", fillcolor="#52BE80", fontcolor=white, width=3, height=1.8];
+    
+    audio_check [label="Audio Answer Check\n━━━━━━━━━━━\n• Speech-to-Text\n• NLP Judging (Word2Vec)\n• Similarity > 75%\n• Used in Level 4", fillcolor="#7DCEA0", width=3, height=1.6];
+    
+    user_mgmt [label="User Management\n━━━━━━━━━━━\n• Auth & Profile\n• Ranking System\n• Daily Check-in", fillcolor="#85C1E2", width=2.8, height=1.4];
+    
+    chatbot [label="Language-\nChatbot-3.0\n━━━━━━━━━━━\n(CNO-LSTM Model)\nLevel 6", fillcolor="#BB8FCE", width=2.5, height=1.3];
+    
+    // Admin Features Row
+    lecture_upload [label="Lecture Upload\n━━━━━━━━━━━\n(Excel Files)", fillcolor="#FFB74D", width=2.5, height=1.2];
+    
+    db_mgmt [label="Database Management\n━━━━━━━━━━━\n• Refresh Database\n• Add New Questions\n• Parse Excel → DB", fillcolor="#FFA726", width=3, height=1.6];
+    
+    // Data Layer
+    db [label="Database Models\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n• Units & Concepts\n• Examples & Questions (Level 2, 3, 4)\n• User Progress & History\n• Wrong Answers & Notes & Rankings\n• Level 6: Conversation (Chatbot)", fillcolor="#F9E79F", shape=cylinder, width=6.5, height=2];
+    
+    // External Services
+    wechat [label="WeChat\nAPI", fillcolor="#F48FB1", width=1.8, height=0.8];
+    google [label="Google\nCloud", fillcolor="#F8BBD0", width=1.8, height=0.8];
+    
+    // Main flow - Client to Router
+    client -> router [label=" HTTP Request ", fontsize=11, penwidth=2];
+    router -> client [label=" JSON / MP3 ", fontsize=10, penwidth=1.5, color="#555555"];
+    
+    // Router to main features
+    router -> quiz [label=" Primary ", fontsize=10, penwidth=3, color="#27AE60"];
+    router -> audio_check [fontsize=10, penwidth=1.5];
+    router -> user_mgmt [fontsize=10, penwidth=1.5];
+    router -> chatbot [fontsize=10, penwidth=1.5, color="#8E44AD"];
+    router -> lecture_upload [fontsize=10, penwidth=2, label=" Admin ", color="#FF6F00"];
+    router -> db_mgmt [fontsize=10, penwidth=2, color="#FF6F00"];
+    
+    // Data layer connections
+    quiz -> db [label=" CRUD ", fontsize=10, penwidth=2];
+    audio_check -> db [fontsize=10, penwidth=1.5];
+    user_mgmt -> db [fontsize=10, penwidth=1.5];
+    db_mgmt -> db [label=" Bulk Insert ", fontsize=10, color="#FF6F00", penwidth=2.5];
+    
+    // External connections
+    user_mgmt -> wechat [label=" Login ", fontsize=9, penwidth=1.5, style=dotted, constraint=false];
+    audio_check -> google [label=" STT ", fontsize=9, penwidth=1.5, style=dotted, constraint=false];
+    quiz -> google [label=" TTS ", fontsize=9, penwidth=1.5, style=dotted, constraint=false];
+    
+    // Admin trigger
+    lecture_upload -> db_mgmt [label=" Trigger ", fontsize=9, penwidth=1.5, color="#FF6F00", constraint=false];
+    
+    // Force horizontal alignment
+    {rank=same; quiz; audio_check; user_mgmt; chatbot}
+    {rank=same; lecture_upload; db_mgmt}
+    {rank=same; wechat; google}
+}
