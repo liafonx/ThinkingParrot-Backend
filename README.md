@@ -1,4 +1,4 @@
-# ThinkingParrot Backend
+# <img src="LOGO.png" alt="ThinkingParrot Logo" width="50" height="50" align="center"/> ThinkingParrot (有脑鹦鹉) Backend
 
 **Django-based API Service for ThinkingParrot AI Learning Platform**
 
