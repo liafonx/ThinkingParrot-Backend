@@ -66,42 +66,30 @@ ThinkingParrot-Backend/
 
 ---
 
-## 🚀 Installation
+## 🎯 Key Features
 
-### Prerequisites
+### Audio Answer Check (Level 4)
+- Speech-to-Text via Google Cloud
+- NLP-based judging using Word2Vec
+- 75% similarity threshold
+- Real-time feedback
 
-- Python 3.7+
-- Google Cloud account (Speech & TTS APIs)
-- WeChat Mini Program account
-- MySQL (production) or SQLite (development)
+### AI Chatbot (Level 6)
+- Powered by [Language-Chatbot-3.0](https://github.com/liafonx/Language-Chatbot-3.0)
+- CNO-LSTM for natural conversations
+- Context-aware responses
+- Realistic English practice
 
-### Setup
+### Content Management
+- Upload lectures via Excel files
+- Bulk database operations
+- Dynamic question generation
 
-```bash
-# 1. Clone repository
-git clone https://github.com/liafonx/ThinkingParrot-Backend.git
-cd ThinkingParrot-Backend
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Create key directory and add your credentials
-cd miniproject
-mkdir key
-# Add these files to key/:
-#   - django.key (Django secret key)
-#   - miniprogram.key (WeChat app secret)
-#   - database.json (Database config)
-#   - radiant-snow-api.json (Google Cloud service account)
-
-# 4. Run migrations
-python manage.py migrate
-
-# 5. Start server
-python manage.py runserver
-```
-
-Server runs at `http://localhost:8000/`
+### Gamification
+- Rankings & leaderboards
+- Daily check-ins
+- Progress tracking
+- Wrong answer review
 
 ---
 
@@ -164,30 +152,42 @@ Server runs at `http://localhost:8000/`
 
 ---
 
-## 🎯 Key Features
+## 🚀 Installation
 
-### Audio Answer Check (Level 4)
-- Speech-to-Text via Google Cloud
-- NLP-based judging using Word2Vec
-- 75% similarity threshold
-- Real-time feedback
+### Prerequisites
 
-### AI Chatbot (Level 6)
-- Powered by [Language-Chatbot-3.0](https://github.com/liafonx/Language-Chatbot-3.0)
-- CNO-LSTM for natural conversations
-- Context-aware responses
-- Realistic English practice
+- Python 3.7+
+- Google Cloud account (Speech & TTS APIs)
+- WeChat Mini Program account
+- MySQL (production) or SQLite (development)
 
-### Content Management
-- Upload lectures via Excel files
-- Bulk database operations
-- Dynamic question generation
+### Setup
 
-### Gamification
-- Rankings & leaderboards
-- Daily check-ins
-- Progress tracking
-- Wrong answer review
+```bash
+# 1. Clone repository
+git clone https://github.com/liafonx/ThinkingParrot-Backend.git
+cd ThinkingParrot-Backend
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Create key directory and add your credentials
+cd miniproject
+mkdir key
+# Add these files to key/:
+#   - django.key (Django secret key)
+#   - miniprogram.key (WeChat app secret)
+#   - database.json (Database config)
+#   - radiant-snow-api.json (Google Cloud service account)
+
+# 4. Run migrations
+python manage.py migrate
+
+# 5. Start server
+python manage.py runserver
+```
+
+Server runs at `http://localhost:8000/`
 
 ---
 
